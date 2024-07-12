@@ -17,38 +17,36 @@ This project provides a set of Python CGI scripts to automate various tasks on A
 
   ```bash
   pip install boto3
-PyMongo: Install the MongoDB driver using:
+  ```
 
-bash
-Copy code
-pip install pymongo
-dotenv: Install for managing environment variables using:
+- **PyMongo:** Install the MongoDB driver using:
 
-bash
-Copy code
-pip install python-dotenv
-.env file: Create a .env file in your project directory and add the following:
+  ```bash
+  pip install pymongo
+  ```
 
-plaintext
-Copy code
-AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY
-AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_KEY
-AWS_DEFAULT_REGION=YOUR_AWS_REGION
-MONGO_DB_USERNAME=YOUR_MONGO_USERNAME
-MONGO_DB_PASSWORD=YOUR_MONGO_PASSWORD
-Sending Parameters
-You can send parameters to the scripts through URL query strings or form data:
+- **dotenv:** Install for managing environment variables using:
 
-Example URL: http://your-server/cgi-bin/script_name.py?operation=launch_ec2_instance
-Form Data: Use HTML forms to send data to the scripts.
-Supported Operations
-launch_ec2_instance: Launches a basic EC2 instance.
-launch_rhel_gui_instance: Launches an EC2 instance with RHEL GUI.
-access_cloud_logs: Retrieves CloudWatch logs.
-audio_to_text_event: Transcribes an audio file from S3 to text.
-connect_python_to_mongodb: Establishes a connection to a MongoDB database.
-upload_to_s3: Uploads a file to S3.
-integrate_lambda_s3_ses: Downloads email IDs from an S3 file and sends test emails.
-Important Considerations
-Security: Store your AWS and MongoDB credentials securely (e.g., in environment variables, not directly in the code).
-Resource Management: Be mindful of AWS resource limits and cost implications.
+  ```bash
+  pip install python-dotenv
+  ```
+
+- **.env file:** Create a `.env` file in your project directory and add the following:
+
+  ```plaintext
+  AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY
+  AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_KEY
+  AWS_DEFAULT_REGION=YOUR_AWS_REGION
+  MONGO_DB_USERNAME=YOUR_MONGO_USERNAME
+  MONGO_DB_PASSWORD=YOUR_MONGO_PASSWORD
+  ```
+
+## Supported Operations
+
+- `launch_ec2_instance`: Launches a basic EC2 instance.
+- `launch_rhel_gui_instance`: Launches an EC2 instance with RHEL GUI.
+- `access_cloud_logs`: Retrieves CloudWatch logs.
+- `audio_to_text_event`: Transcribes an audio file from S3 to text.
+- `connect_python_to_mongodb`: Establishes a connection to a MongoDB database.
+- `upload_to_s3`: Uploads a file to S3.
+- `integrate_lambda_s3_ses`: Downloads email IDs from an S3 file and sends test emails.
