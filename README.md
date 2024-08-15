@@ -34,11 +34,15 @@ This project provides a set of Python CGI scripts to automate various tasks on A
 - **.env file:** Create a `.env` file in your project directory and add the following:
 
   ```plaintext
-  AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY
-  AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_KEY
-  AWS_DEFAULT_REGION=YOUR_AWS_REGION
-  MONGO_DB_USERNAME=YOUR_MONGO_USERNAME
-  MONGO_DB_PASSWORD=YOUR_MONGO_PASSWORD
+# AWS credentials
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_DEFAULT_REGION=your_aws_default_region
+
+# MongoDB credentials
+MONGO_DB_USERNAME=
+MONGO_DB_PASSWORD=
+MONGO_ATLAS_CONNECTION_STRING=
   ```
 
 ## Supported Operations
