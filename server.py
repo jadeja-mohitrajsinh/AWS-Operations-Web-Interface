@@ -26,18 +26,6 @@ def print_headers():
     print()
 
 # AWS operations
-def launch_ec2_instance():
-    ec2 = boto3.resource('ec2', region_name=AWS_DEFAULT_REGION,
-                         aws_access_key_id=AWS_ACCESS_KEY_ID,
-                         aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-    instance = ec2.create_instances(
-        ImageId='ami-0abcdef1234567890',
-        MinCount=1,
-        MaxCount=1,
-        InstanceType='t2.micro'
-    )
-    return {'message': f'EC2 instance launched: {instance[0].id}'}
-
 def launch_rhel_gui_instance():
     ec2 = boto3.resource('ec2', region_name=AWS_DEFAULT_REGION,
                          aws_access_key_id=AWS_ACCESS_KEY_ID,
