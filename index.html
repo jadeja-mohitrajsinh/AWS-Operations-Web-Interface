@@ -7,7 +7,6 @@
     <title>AWS Operations</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        /* Custom dark theme styles */
         body {
             background-color: #121212;
             color: #e0e0e0;
@@ -78,7 +77,7 @@
             margin-top: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             color: #e0e0e0;
-            display: none; /* Hide by default */
+            display: none;
         }
     </style>
 </head>
@@ -89,79 +88,73 @@
             <h1>AWS Operations</h1>
         </div>
 
-        <form id="awsForm" action="/cgi-bin/aws_operations.py" method="post">
+        <form id="awsForm" action="/aws_operations" method="post" enctype="multipart/form-data">
             <div>
                 <label for="operation">Select operation:</label>
                 <select name="operation" id="operation" class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="launch_ec2_instance">Launch EC2 instance</option>
-                    <option value="launch_rhel_gui_instance">Launch RHEL GUI instance in cloud</option>
-                    <option value="access_cloud_logs">Access logs from the cloud</option>
-                    <option value="audio_to_text_event">Event-driven architecture (Audio to Text)</option>
+                    <option value="launch_ec2_instance">Launch EC2 Instance</option>
+                    <option value="launch_rhel_gui_instance">Launch RHEL GUI Instance</option>
+                    <option value="access_cloud_logs">Access Cloud Logs</option>
+                    <option value="audio_to_text_event">Audio to Text Event</option>
                     <option value="connect_python_to_mongodb">Connect Python to MongoDB</option>
-                    <option value="upload_to_s3">Upload object to S3</option>
-                    <option value="integrate_lambda_s3_ses">Integrate Lambda with S3 and SES</option>
+                    <option value="upload_to_s3">Upload to S3</option>
+                    <option value="integrate_lambda_s3_ses">Integrate Lambda, S3, SES</option>
                 </select>
             </div>
-
-            <div id="operationFields">
-                <!-- Dynamic fields will be inserted here -->
-            </div>
-
-            <div class="flex items-center justify-center">
-                <button type="submit" class="btn">
-                    Execute Operation
-                </button>
-            </div>
+            <div id="extraFields"></div>
+            <button type="submit" class="btn">Submit</button>
         </form>
 
-        <div id="result" class="max-w-md mx-auto mt-4"></div>
+        <div id="result"></div>
     </div>
 
     <script>
-        document.getElementById('operation').addEventListener('change', function () {
-            const selectedOperation = this.value;
-            let operationFields = '';
-
-            if (selectedOperation === 'access_cloud_logs') {
-                operationFields = `
-                    <label>Log Group Name: <input type="text" name="log_group_name" class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"></label><br>
-                    <label>Log Stream Name: <input type="text" name="log_stream_name" class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"></label><br>
-                `;
-            } else if (selectedOperation === 'audio_to_text_event') {
-                operationFields = `
-                    <label>Bucket Name: <input type="text" name="bucket_name" class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"></label><br>
-                    <label>Audio File Name: <input type="text" name="audio_file_name" class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"></label><br>
-                `;
-            } else if (selectedOperation === 'upload_to_s3' || selectedOperation === 'integrate_lambda_s3_ses') {
-                operationFields = `
-                    <label>Bucket Name: <input type="text" name="bucket_name" class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"></label><br>
-                    <label>File Name: <input type="text" name="file_name" class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"></label><br>
-                `;
-            }
-
-            document.getElementById('operationFields').innerHTML = operationFields;
-        });
-
         document.getElementById('awsForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
-            const formData = new FormData(this);
-            const params = new URLSearchParams(formData).toString();
+            var form = event.target;
+            var formData = new FormData(form);
 
-            fetch(`/cgi-bin/aws_operations.py?${params}`)
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
-                    const resultDiv = document.getElementById('result');
-                    if (data && Object.keys(data).length > 0) {
-                        resultDiv.textContent = JSON.stringify(data, null, 2);
-                        resultDiv.style.display = 'block';
-                    } else {
-                        resultDiv.style.display = 'none';
-                    }
+                    var resultDiv = document.getElementById('result');
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                    resultDiv.style.display = 'block';
                 })
-                .catch(() => {
-                    document.getElementById('result').style.display = 'none';
-                });
+                .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('operation').addEventListener('change', function () {
+            var value = this.value;
+            var extraFieldsDiv = document.getElementById('extraFields');
+            extraFieldsDiv.innerHTML = '';
+
+            if (value === 'access_cloud_logs') {
+                extraFieldsDiv.innerHTML = `
+                    <label for="log_group_name">Log Group Name:</label>
+                    <input type="text" name="log_group_name" id="log_group_name" required>
+                    <label for="log_stream_name">Log Stream Name:</label>
+                    <input type="text" name="log_stream_name" id="log_stream_name" required>
+                `;
+            } else if (value === 'audio_to_text_event') {
+                extraFieldsDiv.innerHTML = `
+                    <label for="bucket_name">S3 Bucket Name:</label>
+                    <input type="text" name="bucket_name" id="bucket_name" required>
+                    <label for="audio_file">Audio File:</label>
+                    <input type="file" name="audio_file" id="audio_file" required>
+                `;
+            } else if (value === 'upload_to_s3') {
+                extraFieldsDiv.innerHTML = `
+                    <label for="bucket_name">S3 Bucket Name:</label>
+                    <input type="text" name="bucket_name" id="bucket_name" required>
+                    <label for="file">File:</label>
+                    <input type="file" name="file" id="file" required>
+                `;
+            }
         });
     </script>
 </body>
