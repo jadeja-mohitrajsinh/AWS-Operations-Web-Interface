@@ -92,13 +92,14 @@
             <div>
                 <label for="operation">Select operation:</label>
                 <select name="operation" id="operation" class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="">Select an operation</option>
                     <option value="launch_ec2_instance">Launch EC2 Instance</option>
                     <option value="launch_rhel_gui_instance">Launch RHEL GUI Instance</option>
                     <option value="access_cloud_logs">Access Cloud Logs</option>
                     <option value="audio_to_text_event">Audio to Text Event</option>
                     <option value="connect_python_to_mongodb">Connect Python to MongoDB</option>
                     <option value="upload_to_s3">Upload to S3</option>
-                    <option value="integrate_lambda_s3_ses">Integrate Lambda, S3, SES</option>
+                    <option value="integrate_lambda_s3_ses">Mail</option>
                 </select>
             </div>
             <div id="extraFields"></div>
@@ -153,6 +154,13 @@
                     <input type="text" name="bucket_name" id="bucket_name" required>
                     <label for="file">File:</label>
                     <input type="file" name="file" id="file" required>
+                `;
+            } else if (value === 'integrate_lambda_s3_ses') {
+                extraFieldsDiv.innerHTML = `
+                    <label for="bucket_name">S3 Bucket Name:</label>
+                    <input type="text" name="bucket_name" id="bucket_name" required>
+                    <label for="file">Upload Mail List:</label>
+                    <input type="file" name="file" id="file" accept=".csv" required>
                 `;
             }
         });
