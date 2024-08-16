@@ -3,6 +3,7 @@ import boto3
 import pymongo
 import os
 from dotenv import load_dotenv
+import time
 
 app = Flask(__name__)
 
@@ -55,12 +56,34 @@ def access_cloud_logs(log_group_name, log_stream_name):
     )
     return logs
 
-def audio_to_text(bucket_name, audio_file):
-    s3 = boto3.client('s3', region_name=AWS_DEFAULT_REGION,
-                      aws_access_key_id=AWS_ACCESS_KEY_ID,
-                      aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-    # Placeholder response for audio to text conversion
-    return {'message': 'Audio to text conversion completed'}
+def audio_to_text(bucket_name, audio_file_path):
+    transcribe = boto3.client('transcribe', region_name=AWS_DEFAULT_REGION,
+                              aws_access_key_id=AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+    
+    job_name = 'audio-transcription-job-' + str(int(time.time()))
+    job_uri = f's3://{bucket_name}/{os.path.basename(audio_file_path)}'
+    
+    transcribe.start_transcription_job(
+        TranscriptionJobName=job_name,
+        Media={'MediaFileUri': job_uri},
+        MediaFormat='mp3',
+        LanguageCode='en-US'
+    )
+    
+    # Wait for the transcription job to complete
+    while True:
+        result = transcribe.get_transcription_job(TranscriptionJobName=job_name)
+        status = result['TranscriptionJob']['TranscriptionJobStatus']
+        if status in ['COMPLETED', 'FAILED']:
+            break
+        time.sleep(15)  # Wait for 15 seconds before checking again
+    
+    if status == 'COMPLETED':
+        transcription_url = result['TranscriptionJob']['Transcript']['TranscriptFileUri']
+        return {'message': f'Transcription completed. You can download the transcript from {transcription_url}'}
+    else:
+        return {'error': 'Transcription failed'}
 
 def connect_python_to_mongodb():
     try:
