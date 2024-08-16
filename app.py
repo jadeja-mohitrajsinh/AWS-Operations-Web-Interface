@@ -104,16 +104,13 @@ def upload_to_s3(bucket_name, file_path):
     s3.upload_file(file_path, bucket_name, file_name)
     return {'message': f'File uploaded to S3 bucket {bucket_name}'}
 
-def integrate_lambda_s3_ses():
+def integrate_lambda_s3_ses(bucket_name, object_key):
     s3 = boto3.client('s3', region_name=AWS_DEFAULT_REGION,
                       aws_access_key_id=AWS_ACCESS_KEY_ID,
                       aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
     ses = boto3.client('ses', region_name=AWS_DEFAULT_REGION,
                        aws_access_key_id=AWS_ACCESS_KEY_ID,
                        aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-    
-    bucket_name = os.getenv('S3_BUCKET_NAME')
-    object_key = os.getenv('S3_OBJECT_KEY')
     
     response = s3.get_object(Bucket=bucket_name, Key=object_key)
     email_addresses = response['Body'].read().decode('utf-8').splitlines()
@@ -140,39 +137,44 @@ def integrate_lambda_s3_ses():
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
-
 @app.route('/aws_operations', methods=['POST'])
 def aws_operations():
-    operation = request.form.get('operation')
-    
-    if operation == 'launch_ec2_instance':
-        result = launch_ec2_instance()
-    elif operation == 'launch_rhel_gui_instance':
-        result = launch_rhel_gui_instance()
-    elif operation == 'access_cloud_logs':
-        log_group_name = request.form.get('log_group_name')
-        log_stream_name = request.form.get('log_stream_name')
-        result = access_cloud_logs(log_group_name, log_stream_name)
-    elif operation == 'audio_to_text_event':
-        bucket_name = request.form.get('bucket_name')
-        audio_file = request.files['audio_file']
-        audio_file_path = f'/tmp/{audio_file.filename}'
-        audio_file.save(audio_file_path)
-        result = audio_to_text(bucket_name, audio_file_path)
-    elif operation == 'connect_python_to_mongodb':
-        result = connect_python_to_mongodb()
-    elif operation == 'upload_to_s3':
-        bucket_name = request.form.get('bucket_name')
-        file = request.files['file']
-        file_path = f'/tmp/{file.filename}'
-        file.save(file_path)
-        result = upload_to_s3(bucket_name, file_path)
-    elif operation == 'integrate_lambda_s3_ses':
-        result = integrate_lambda_s3_ses()
-    else:
-        result = {'error': 'Invalid operation'}
+    try:
+        operation = request.form.get('operation')
+        
+        if operation == 'launch_ec2_instance':
+            result = launch_ec2_instance()
+        elif operation == 'launch_rhel_gui_instance':
+            result = launch_rhel_gui_instance()
+        elif operation == 'access_cloud_logs':
+            log_group_name = request.form.get('log_group_name')
+            log_stream_name = request.form.get('log_stream_name')
+            result = access_cloud_logs(log_group_name, log_stream_name)
+        elif operation == 'audio_to_text_event':
+            bucket_name = request.form.get('bucket_name')
+            audio_file = request.files['audio_file']
+            audio_file_path = f'/tmp/{audio_file.filename}'
+            audio_file.save(audio_file_path)
+            result = audio_to_text(bucket_name, audio_file_path)
+        elif operation == 'connect_python_to_mongodb':
+            result = connect_python_to_mongodb()
+        elif operation == 'upload_to_s3':
+            bucket_name = request.form.get('bucket_name')
+            file = request.files['file']
+            file_path = f'/tmp/{file.filename}'
+            file.save(file_path)
+            result = upload_to_s3(bucket_name, file_path)
+        elif operation == 'integrate_lambda_s3_ses':
+            bucket_name = request.form.get('bucket_name')
+            object_key = request.form.get('object_key')
+            result = integrate_lambda_s3_ses(bucket_name, object_key)
+        else:
+            result = {'error': 'Invalid operation'}
 
-    return jsonify(result)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=8000)
